@@ -1,6 +1,7 @@
 
 var http = require('http');
 var fs = require('fs');
+var resolve = require('path').resolve;
 
 /*
  *  Configure the exchange module
@@ -20,12 +21,12 @@ module.exports = function(config) {
   var hostname    = config.hostname || 'openexchangerates.org';
   var path        = config.path || '/api/latest.json?app_id=';
   var id          = config.apiID || '3e2ebdb2317b453fa6a3bb88d3bd59c1';
-  var cacheFile   = config.fileStore || './data/ratesCache.txt';
+  var cacheFile   = config.fileStore || resolve(__dirname, './data/ratesCache.txt');
   var useFileOnly = config.useFileStoreOnly || false;
   var logging     = config.logging || false;
 
   var ratesCache = null;
-  var symbolsFile = './data/symbols_utf8.json';
+  var symbolsFile = resolve(__dirname, './data/symbols_utf8.json');
 
 
   /****************
@@ -182,7 +183,7 @@ module.exports = function(config) {
           //write data to file in special format
           _writeCacheFile(cacheFile, data, function writeCacheFile(err) {
             if (err) return callback(err);
-            callback(data);
+            callback(null, data);
           });
         });
       });
@@ -241,7 +242,7 @@ module.exports = function(config) {
     _log('_writeCacheFile | text:', text);
     fs.writeFile(file, text, function(err) {
       if (err) return callback(err);
-      _log('_writeCacheFile | file written');
+      _log('_writeCacheFile | file written successfully');
       callback(null, text);
     });
 
