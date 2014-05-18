@@ -4,12 +4,13 @@ var fs = require('fs');
 
 /*
  *  Configure the exchange module
- *  @config {object}
- *  @config.hostname {string} domain to 3rd party rates API
- *  @config.path {string} path for 3rd party rates API
- *  @config.apiID {string} path to 3rd party rates API
- *  @config.fileStore {string} path and filename of where to cache rates
- *  @config.useFileStoreOnly {bool} if true, won't make 3rd party API requests
+ *  @param config {object}
+ *  @param config.hostname {string} domain to 3rd party rates API
+ *  @param config.path {string} path for 3rd party rates API
+ *  @param config.apiID {string} path to 3rd party rates API
+ *  @param config.fileStore {string} path and filename of where to cache rates
+ *  @param config.useFileStoreOnly {bool} if true, won't make 3rd party API request
+ *  @param config.logging {bool} if true, log to console. Default: false
  */
 module.exports = function(config) {
 
@@ -21,6 +22,7 @@ module.exports = function(config) {
   var id          = config.apiID || '3e2ebdb2317b453fa6a3bb88d3bd59c1';
   var cacheFile   = config.fileStore || './data/ratesCache.txt';
   var useFileOnly = config.useFileStoreOnly || false;
+  var logging     = config.logging || false;
 
   var ratesCache = null;
   var symbolsFile = './data/symbols_utf8.json';
@@ -32,26 +34,33 @@ module.exports = function(config) {
 
   /*
    *  Convert dollar amount to new currency
-   *  @options {object}
-   *  @options.amount {float} amount to be converted
-   *  @options.from {string} [optional] three character currency code of amount. Default "USD".
-   *  @options.to {string}  three character currency code of the converted amount
+   *  @param options {object}
+   *  @param options.amount {float} amount to be converted
+   *  @param options.from {string} [optional] three character currency code of amount. Default "USD".
+   *  @param options.to {string}  three character currency code of the converted amount
    */
   function convert (options, callback) {
-    if (!options) throw 'convert method requires options object as first argument';
+    if (!options) callback( new Error('convert method requires options object as first argument') );
 
     var amount = options.amount || callback( new Error('convert method requires options.amount') );
     var from = options.from || 'USD';
     var to = options.to || callback( new Error('convert method requires options.to') );
+    var newAmount;
+    var toSymbol;
 
-    // TODO: this needs to be fleshed out
+    getConversionRate(from, to, function(err, rate) {
+      if (err) return callback(err);
+      toSymbol = _getSymbol(to);
+      newAmount = parseInt(Math.round(amount * rate * 100)) / 100;
+      callback(null, newAmount, to, toSymbol);
+    });
 
   }
 
   /*
    *  Return the conversion rate for a given 3-letter country code
-   *  @fromCountry {string} three letter country code
-   *  @toCountry {string} three letter country code
+   *  @param fromCountry {string} three letter country code
+   *  @param toCountry {string} three letter country code
    *
    *  Stack: getConversinoRate -> _getCurrencyInfo -> _getData -> [return from memory OR _readCacheFile OR _getNewRates]
    *        IF _readCacheFile -> return from file
@@ -61,86 +70,128 @@ module.exports = function(config) {
     _getCurrencyInfo(fromCountry, function fromCountry(err, data) {
       if (err) return callback(err);
       var fromRate = data.rate;
-      console.log('getConversionRate | fromRate:', fromRate);
+      _log('getConversionRate | fromRate:', fromRate);
       _getCurrencyInfo(toCountry, function toCountry(err, data) {
         if (err) return callack(err);
         var toRate = data.rate;
-        console.log('getConversionRate | toRate:', toRate);
+        _log('getConversionRate | toRate:', toRate);
         var conversionRate = Math.round(toRate / fromRate * 1000000) / 1000000;
-        console.log('getConversionRate | conversionRate:', conversionRate);
+        _log('getConversionRate | conversionRate:', conversionRate);
         callback(null, conversionRate);
       });
     });
   }
 
+
+  /******************
+   * PRIVATE METHODS
+   ******************/
+
   /*
    *  Returns only the portion of data needed
-   *  @countryCode {string} 3 letter country code
+   *  @param countryCode {string} 3 letter country code
    */
   function _getCurrencyInfo(countryCode, callback) {
     _getData(function currencyInfo(err, data) {
       if (err) return callback(err);
-      console.log('_getCurrencyInfo | data["'+countryCode+'"]:', data.rates[countryCode]);
+      _log('_getCurrencyInfo | data["'+countryCode+'"]:', data.rates[countryCode]);
       callback(null, data.rates[countryCode]);
     });
   }
 
   /*
-   *  Returns the full rates object, ensuring up-to-date data
+   *  Returns the full rates object properly formatted, ensuring up-to-date data
    *  This method tries to performantly return the latest data
    *  based on the fact that the API only updates every hour.
    *  Also, for performance, this method first looks to the memory cache,
    *  then the local file cache, and finally makes the http, API request.
    */
   function _getData(callback) {
-    console.log('_getData | ratesCache: ', (ratesCache)? 'cache is primed' : ratesCache);
-    console.log('_getData | useFileOnly', useFileOnly);
-    // if data is in memory (JSON) and not expired or configured to use file only: return it
+    _log('_getData | ratesCache: ', (ratesCache)? 'cache is primed' : ratesCache);
+    _log('_getData | useFileOnly', useFileOnly);
+    // if data is in memory and not expired or config forbids http requests: return data
     if ( ratesCache && (!_isDataExpired(ratesCache.timestamp) || useFileOnly) ) {
-      console.log('_getData | path 1');
+      _log('_getData | path 1');
       callback(null, ratesCache);
     }
-    // if no data in memory and configured to only use file: fetch data from file into memory
+    // if no data in memory and config forbids http requests: fetch file, save into memory and return data
     else if ( !ratesCache && useFileOnly ) {
-      console.log('_getData | path 2');
+      _log('_getData | path 2');
       _readCacheFile(cacheFile, function cacheFile1(err, data) {
         if (err) return callback(err);
         ratesCache = data;
-        console.log('_getData | cacheFile1 | data:', data);
         callback(null, data);
       });
     }
-    // if data is in memory but expired: fetch new data [and process to file and into memory]
+    // if data is in memory but expired and config allows http request: fetch new data
     // (if data in memory is stale, it's safe to assume data in file is stale)
-    else if ( ratesCache && !useFileOnly && _isDataExpired(ratesCache.timestamp) ) {
-      console.log('_getData | path 3');
+    else if ( ratesCache && _isDataExpired(ratesCache.timestamp && !useFileOnly) ) {
+      _log('_getData | path 3');
       _getNewRates(callback);
     }
     // if no data in memory and config allows http request and file exists: check if it is expired
     else if ( !ratesCache && !useFileOnly && fs.existsSync(cacheFile) ) {
-      console.log('_getData | path 4');
+      _log('_getData | path 4');
       _readCacheFile(cacheFile, function cacheFile2(err, data) {
         if (err) return callback(err);
-        // if data expired, fetch new data [and process to file and into memory]
+        // if data expired, fetch new data
         if ( _isDataExpired(data.timestamp) ) {
+          _log('_getData | path4 | cachedFile data expired');
           _getNewRates(callback);
         }
         // if data is fresh, put it in memory and return it
         else {
+          _log('_getData | path4 | cachedFile data is fresh');
           ratesCache = data;
           callback(null, data);
         }
       });
     }
-    // else no data in memory and no data in file, fetch new data [and process to file and into memory]
-    else if (!useFileOnly) {
-      console.log('_getData | path 5');
+    // else fetch new data
+    else {
+      _log('_getData | path 5');
       _getNewRates(callback);
     }
   }
 
   /*
-   *  Read text file, parse into JSON
+   *  Requests new data over http from API, reformats it, caches it in memory and writes it to file
+   *  STACK: _getNewRates -> _formatResponse -> _writeCacheFile -> return data
+   */
+  function _getNewRates(callback) {
+    var options = {
+      hostname: hostname,
+      path: path+id
+    };
+    var response = '';
+    // request new data from API
+    http.get(options, function(res) {
+      res.setEncoding('utf8');
+      res.on('error', callback);
+      res.on('data', function httData(chunk) {
+        _log('_getNewRates | on.data | chunk received');
+        response += chunk;
+      });
+      res.on('end', function httpEnd() {
+        _log('_getNewRates | on.end | response:', response);
+        // reformatt API response to match template
+        _formatResponse(JSON.parse(response), function formattedResponse(err, data) {
+          if (err) return callback(err);
+          //cache data in memory
+          ratesCache = data;
+          //write data to file in special format
+          _writeCacheFile(cacheFile, data, function writeCacheFile(err) {
+            if (err) return callback(err);
+            callback(data);
+          });
+        });
+      });
+    });
+  }
+
+  /*
+   *  Read text file, construct correct format, build into JSON
+   *  @param file {string} path to file to read
    */
   function _readCacheFile(file, callback) {
     var currencyRegex = /([A-Z]{3})=(.+)\s([0-9.]+)/gm;
@@ -159,14 +210,16 @@ module.exports = function(config) {
         };
       }
       timestamp = timestampRegex.exec(data);
-      obj['timestamp'] = parseInt(timestamp[1], 10);
-      console.log('_readCacheFile:', obj);
+      obj.timestamp = parseInt(timestamp[1], 10);
+      _log('_readCacheFile:', obj);
       callback(null, obj);
     });
   }
 
   /*
    *  Refomats data to file format and saves to disk
+   * @param file {string} path to file where data is written
+   * @param data {object} holds rates and timestamp, already formatted correctly
    */
   function _writeCacheFile(file, data, callback) {
     var rateTemplate = '{{country}}={{symbol}} {{rate}}';
@@ -185,57 +238,16 @@ module.exports = function(config) {
                 .replace('{{symbol}}', symbol)
                 .replace('{{rate}}', rate);
     }
-    console.log('_writeCacheFile | text:', text);
+    _log('_writeCacheFile | text:', text);
     fs.writeFile(file, text, function(err) {
       if (err) return callback(err);
-      console.log('_writeCacheFile | file written');
+      _log('_writeCacheFile | file written');
       callback(null, text);
     });
 
   }
 
 
-  /******************
-   * PRIVATE METHODS
-   ******************/
-
-  /*
-   *  Load rates file into memory
-   *  - grab data from api
-   *  - reformat it
-   *  - save to cache
-   *  - save to file
-   *  - return formatted data
-   */
-  function _getNewRates(callback) {
-    console.log('_getNewRates CALLED');
-    var options = {
-      hostname: hostname,
-      path: path+id
-    };
-    var response = '';
-    http.get(options, function(res) {
-      res.setEncoding('utf8');
-      res.on('error', callback);
-      res.on('data', function httData(chunk) {
-        console.log('_getNewRates | on.data | chunk received');
-        response += chunk;
-      });
-      res.on('end', function httpEnd() {
-        console.log('_getNewRates | on.end | response:', response);
-        _formatResponse(JSON.parse(response), function formattedResponse(err, data) {
-          if (err) return callback(err);
-          //cache data in memory
-          ratesCache = data;
-          //write data to file in special format
-          _writeCacheFile(cacheFile, data, function writeCacheFile(err) {
-            if (err) return callback(err);
-            callback(data);
-          });
-        });
-      });
-    });
-  }
 
   /*
    *  Returns data formatted as { USD: {symbol:$, rate:1.0} }
@@ -255,7 +267,7 @@ module.exports = function(config) {
         obj.rates[currency].rate = data.rates[currency];
         obj.rates[currency].symbol = symbols[currency] || '$';
       }
-      console.log('_formatResponse | returned object:', obj);
+      _log('_formatResponse | returned object:', obj);
       callback(null, obj);
     });
 
@@ -263,7 +275,7 @@ module.exports = function(config) {
 
   /*
    *  Determines if the data needs to be refreshed
-   *  @timestamp {string} UNIX time, needs *1000 to make into miliseconds
+   *  @param timestamp {string} UNIX time, needs *1000 to make into miliseconds
    */
   function _isDataExpired(timestamp) {
     var now = new Date();
@@ -272,6 +284,23 @@ module.exports = function(config) {
 
     if ( now > expiration ) return true;
     return false;
+  }
+
+  /*
+   *  Returns the symbol for a currency, **assumes data is already cached
+   *  @param country {string} threee letter country code
+   */
+  function _getSymbol(country) {
+    return ratesCache.rates[country].symbol;
+  }
+
+  /*
+   *  logging utility, activat/deactivate with config option "logging"
+   */
+  function _log() {
+    if (!logging) return;
+    var args = Array.prototype.slice.call(arguments, 0);
+    console.log.apply(this, args);
   }
 
 
