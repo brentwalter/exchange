@@ -4,12 +4,6 @@ var app = module.exports = express();
 
 var exchange = require('../../exchange-module')({logging:true});
 
-//mock out model if in development mode (default)
-var model = (app.get('env') === "development") ? '../models/transactions/mock' : '../models/transactions';
-
-//initialize model
-var donation = require(model);
-
 app.get('/paypal/conversionRate', function(req, res) {
   if (req.query && req.query.to && req.query.from) {
     exchange.getConversionRate(req.query.from, req.query.to, function(err, rate) {

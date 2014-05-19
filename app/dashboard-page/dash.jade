@@ -2,4 +2,14 @@
 extend ../views/layout
 
 block content
-  h1 TRANSACTIONS
+  script.
+    var activities =!{JSON.stringify(activities)};
+  select(name='currency')
+    option(selected=true)= '$ USD'
+    option= '$ CAD'
+  table.table.table-striped.table-hover
+    each activity in activities
+      tr
+        td= activity.date
+        td= activity.type.charAt(0).toUpperCase() + activity.type.slice(1) + ':' + activity.description
+        td.amount= '$ '+activity.amount

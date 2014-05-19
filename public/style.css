@@ -9,6 +9,7 @@ body { background: #F5F5F5; }
 }
 
 #container {
+  font-size:1.75rem;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
@@ -18,4 +19,8 @@ body { background: #F5F5F5; }
   padding:50px;
   box-shadow: 1px 1px 16px rgba(0,0,0,0.2);
   border-radius:5px;
+}
+
+td.amount {
+  text-align:right;
 }
