@@ -4,7 +4,7 @@ node-exchange
 Currency converter API and transaction dashboard for Node.js
 
 ### Setup & Install
-- Tested: Node v0.10.28 / Chrome v34
+- Tested: Mac OSX 10.8.5 / Node v0.10.28 / Chrome v34
 - `git clone https://github.com/brentwalter/exchange.git` or [download zip](https://github.com/brentwalter/exchange/archive/master.zip)
 - `npm install`
 - To run tests you'll need `npm install -g nodeunit`
