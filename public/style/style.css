@@ -1,0 +1,45 @@
+body { background: #F5F5F5; }
+
+.mainTitle {
+  text-align: center;
+  margin-top:50px;
+  color: #fff;
+  font-size:50px;
+  text-shadow: 1px 1px 5px rgba(0,0,0,0.6);
+}
+
+#container {
+  font-size:1.75rem;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 70%;
+  margin:15px auto;
+  background: #fff;
+  padding:50px;
+  box-shadow: 1px 1px 16px rgba(0,0,0,0.2);
+  border-radius:5px;
+}
+
+.btn-group { /* modifying a library in this way is terrible and hacky. Only for shimming a demo */
+  float:right!important;
+  margin-bottom:30px;
+}
+.dropdown-menu { /* modifying a library in this way is terrible and hacky. Only for shimming a demo */
+  left:auto;
+  right:0;
+}
+
+td.amount { text-align:right; }
+
+@media (max-width:768px) {
+  #container {
+    width: 100%;
+    box-shadow: none;
+    border-radius: none;
+  }
+  .mainTitle { margin-top:10px; }
+}
+@media (max-width:480px) {
+  #container { padding:10px; }
+}

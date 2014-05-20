@@ -2,14 +2,17 @@
 extend ../views/layout
 
 block content
-  script.
-    var activities =!{JSON.stringify(activities)};
-  select(name='currency')
-    option(selected=true)= '$ USD'
-    option= '$ CAD'
+  div.btn-group
+    button(type="button", class="btn btn-primary dropdown-toggle", data-toggle="dropdown")!= '<span class="js-currency">$ USD</span> <span class="caret"></span>'
+    ul(class="dropdown-menu  js-currency-menu", role="menu")
+      li: a(class="js-currency-select", href="#") $ USD
+      li: a(class="js-currency-select", href="#") $ CAD
+      li: a(class="js-currency-select", href="#") € EUR
+      li: a(class="js-currency-select", href="#") 元 CNY
+      li: a(class="js-currency-select", href="#") ₹ INR
   table.table.table-striped.table-hover
-    each activity in activities
-      tr
+    each activity, index in activities
+      tr(data-row=index)
         td= activity.date
-        td= activity.type.charAt(0).toUpperCase() + activity.type.slice(1) + ':' + activity.description
+        td= activity.type.charAt(0).toUpperCase() + activity.type.slice(1) + ': ' + activity.description
         td.amount= '$ '+activity.amount
