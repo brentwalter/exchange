@@ -62,6 +62,7 @@ Currency converter API and transaction dashboard for Node.js
     - Source options for the dropdown dynamically from server data
     - If filtering, sorting, interacting, adding, deleting, etc. is required, convert into Require.js/Backbone app
     - Mock $.get() to have more complete unit tests
+    - Add Capert.js for automated integration tests
     - Add Grunt for better asset optimization and developer conveniece (SCSS, uglify, watch, etc.)
     
 
