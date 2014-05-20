@@ -1,7 +1,7 @@
 node-exchange
 =============
 
-Streaming currency converter for Node.js
+Currency converter and transaction dashboard for Node.js
 
 ### Setup & Install
 - `git clone https://github.com/brentwalter/exchange.git` or download zip
