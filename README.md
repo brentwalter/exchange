@@ -18,4 +18,18 @@ Streaming currency converter for Node.js
 
 ### Server App
 - Main file is `app.js` and supplementary modules are in `/app/` directory
-- Run app with `node app` from within the root of the project 
+- Run app with `npm start` from within the root of the project 
+- Run tests with `npm test` from within the root of the project
+- View dashboard: `http://localhost:3000/paypal/activity`
+    - The dashboard has a dropdown to convert all transction amounts to a selected currency using the APIs
+- View currencyConversion API: http://localhost:3000/paypal/currencyConversion?{query}
+    - {query}: from=USD&to=CAD&amount=1000
+- View conversionRate API: http://localhost:3000/paypal/conversionRate?{query}
+    - {query}: from=USD&to=CAD
+
+
+### Client App
+- View the dashboard once the Server App is running: `http://localhost:3000/paypal/activity`
+- View qUnit tests by visiting: `http://localhost:3000/script/test/index.html`
+- Client app is located: `public/script/app.js`
+- Client tests are located: `public/script/test/app-spec.js`
