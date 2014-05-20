@@ -14,7 +14,7 @@ app.get('/paypal/activity', function(req, res) {
   transactions.getTransactions(function(err, activities) {
     if (err) throw err;
     console.log('dashboard-page | activities length', activities.length);
-    res.render('dash', {activities:activities, activitiesString:JSON.stringify(activities)});
+    res.render('dash', {activities:activities});
   });
 
 
