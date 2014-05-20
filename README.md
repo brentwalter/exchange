@@ -37,7 +37,7 @@ Currency converter API and transaction dashboard for Node.js
 - Client tests are located: `public/script/test/app-spec.js`
 
 
-### Things Left To Do:
+### Things Left To Do
 - Exchange Module
     - Better caching of data than static file store. Redis would be a good candidate. It would also enable sharing accross multiple instances.
     - I'd use JSON, not the current data format for the static file store, because it currently incurs a lot of read/write churn
