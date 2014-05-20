@@ -42,7 +42,7 @@ Currency converter API and transaction dashboard for Node.js
     - I'd use JSON, not the current data format for the static file store, because it currently incurs a lot of read/write churn
     - Create http and fs mocks to enable more complete unit testing
     - Implement or more robust logger like Winston
-    - Enable support to https
+    - Enable support for https
     - Remove my openexchangerates.org API key
     - Make the path parameter for accessing openexchangerate.org more flexible to support their entire API
     - Make all file system paths use path utilites rather than being UNIX, hard coded
