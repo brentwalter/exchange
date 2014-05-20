@@ -16,18 +16,20 @@ Currency converter API and transaction dashboard for Node.js
 - Run tests from project root with: `npm test`
 - Static file store in `/exchange-module/data/ratesCache.txt`
 - Requests fresh rates from https://openexchangerates.org/
+- - List of supported currencies can be found [in the file cache](https://github.com/brentwalter/exchange/blob/master/exchange-module/data/ratesCache.txt)
 
 
 ### Server App
 - Main file is `app.js` and supplementary modules are in `/app/` directory
 - Run app with `npm start` from within the root of the project 
-- Run tests with `npm test` from within the root of the project
+- Run tests with `npm test` from within the root of the project (you'll need `npm install -g nodeunit`)
+- List of supported currencies can be found [in the file cache](https://github.com/brentwalter/exchange/blob/master/exchange-module/data/ratesCache.txt)
 - View dashboard: `http://localhost:3000/paypal/activity`
     - The dashboard has a dropdown to convert all transction amounts to a selected currency using the APIs
-- View currencyConversion API: http://localhost:3000/paypal/currencyConversion?{query}
-    - {query}: from=USD&to=CAD&amount=1000
-- View conversionRate API: http://localhost:3000/paypal/conversionRate?{query}
-    - {query}: from=USD&to=CAD
+- View currencyConversion API: `http://localhost:3000/paypal/currencyConversion?{query}`
+    - {query} example: `from=USD&to=CAD&amount=1000`
+- View conversionRate API: `http://localhost:3000/paypal/conversionRate?{query}`
+    - {query} example: `from=USD&to=CAD`
 
 
 ### Client App
@@ -42,7 +44,7 @@ Currency converter API and transaction dashboard for Node.js
     - Better caching of data than static file store. Redis would be a good candidate. It would also enable sharing accross multiple instances.
     - I'd use JSON, not the current data format for the static file store, because it currently incurs a lot of read/write churn
     - Create http and fs mocks to enable more complete unit testing
-    - Implement or more robust logger like Winston
+    - Implement a more robust logger like Winston
     - Enable support for https
     - Remove my openexchangerates.org API key
     - Make the path parameter for accessing openexchangerate.org more flexible to support their entire API
