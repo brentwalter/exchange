@@ -11,7 +11,8 @@ Currency converter and transaction dashboard for Node.js
 
 ### Exchange Module
 - Located `/exchange-module/index.js`
-- nodeunit test: `/exchange-module/test/exchange-spec-fileCacheOnly.js`
+- nodeunit tests: `/exchange-module/test/exchange-spec-fileCacheOnly.js`
+- Run tests from project root with: `npm test`
 - Static file store in `/exchange-module/data/ratesCache.txt`
 - Requests fresh rates from https://openexchangerates.org/
 
