@@ -55,7 +55,7 @@ Currency converter API and transaction dashboard for Node.js
     - Write Tests for the transactions model
 - Client App
     - Not use Bootstrap with hacky, brittle overrides for CSS. Implement SCSS.
-    - Inject the transactions model into the client so I don't have to parse the DOM to get the amounts before doing currency conversion
+    - Inject the transactions model into the client so I don't have to parse the DOM to get the amounts data before doing currency conversion
     - Share template partial to make rendering client/serverside identical
     - Source options for the dropdown dynamically from server data
     - If filtering, sorting, interacting, adding, deleting, etc. is required, convert into Require.js/Backbone app
