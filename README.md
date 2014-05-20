@@ -43,6 +43,7 @@ Currency converter API and transaction dashboard for Node.js
 - Exchange Module
     - Better caching of data than static file store. Redis would be a good candidate. It would also enable sharing accross multiple instances.
     - I'd use JSON, not the current data format for the static file store, because it currently incurs a lot of read/write churn
+    - When reading file from disk, don't read entire file before checking timestamp, becuase full file isn't needed if http request will be made to fetch fresh data
     - Create http and fs mocks to enable more complete unit testing
     - Implement a more robust logger like Winston
     - Enable support for https
