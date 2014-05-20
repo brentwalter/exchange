@@ -1,6 +1,8 @@
-var exchange = require('../exchange')({
+var resolve = require('path').resolve;
+
+var exchange = require('../index')({
     useFileStoreOnly:true,
-    fileStore: './test/data/exchange-spec-fileCacheOnly.txt.mock'
+    fileStore: resolve(__dirname, './data/exchange-spec-fileCacheOnly.txt.mock')
   });
 
 module.exports = {

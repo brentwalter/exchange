@@ -2,9 +2,10 @@
   "name": "exchangeApp",
   "version": "0.0.1",
   "description": "simple transaction dashboard and API",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "nodeunit exchange-module/test/exchange-spec-fileCacheOnly.js",
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",
@@ -15,6 +16,6 @@
   "readmeFilename": "README.md",
   "dependencies": {
     "express": "~4.2.0",
-    "jade": "~1.3.1",
+    "jade": "~1.3.1"
   }
 }
