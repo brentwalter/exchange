@@ -16,7 +16,7 @@ Currency converter API and transaction dashboard for Node.js
 - Run tests from project root with: `npm test`
 - Static file store in `/exchange-module/data/ratesCache.txt`
 - Requests fresh rates from https://openexchangerates.org/
-- - List of supported currencies can be found [in the file cache](https://github.com/brentwalter/exchange/blob/master/exchange-module/data/ratesCache.txt)
+- List of supported currencies can be found [in the file cache](https://github.com/brentwalter/exchange/blob/master/exchange-module/data/ratesCache.txt)
 
 
 ### Server App
