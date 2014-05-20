@@ -9,7 +9,7 @@ app.get('/paypal/conversionRate', function(req, res) {
     exchange.getConversionRate(req.query.from, req.query.to, function(err, rate) {
       if (err) {
         console.error(err);
-        return res.send(500, {error: 'something broke'});
+        return res.send(500, {error: err.message});
       }
       res.json({
         conversionRate: rate

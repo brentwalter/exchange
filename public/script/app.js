@@ -93,7 +93,7 @@ $(function () {
 			previousCurrencyCode:previousCurrencyCode,
 			currentCurrencyCode:currentCurrencyCode,
 			currentCurrencySymbol:currentCurrencySymbol
-		}
+		};
 	}
 
 	// build array of transaction amounts from DOM
@@ -117,7 +117,7 @@ $(function () {
 	// fetch conversion rate from API based on to/from country codes
 	function getConversionRate(from, to, callback) {
 		$.get('/paypal/conversionRate?from='+from+'&to='+to, callback)
-			.fail(function(){ alert('getConversionRate request failed.') });
+			.fail(function(){ alert('getConversionRate request failed.'); });
 	}
 
 	// takes array of amounts, converts them based on rates, returns array of new amounts
@@ -209,7 +209,7 @@ $(function () {
 				$currencyMenu: $currencyMenu,
 				$transactionRows: $transactionRows
 			}
-		}
+		};
 		$(document).trigger('exportReady');
 	}
 

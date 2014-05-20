@@ -3,6 +3,7 @@ var http = require('http');
 var fs = require('fs');
 var resolve = require('path').resolve;
 
+// shared resouces
 var ratesCache = null;
 var symbolsFile = resolve(__dirname, './data/symbols_utf8.json');
 
@@ -280,6 +281,7 @@ module.exports = function(config) {
 
   /*
    *  Determines if the data needs to be refreshed
+   *  SLA from openexchangerates.org gives new data every hour
    *  @param timestamp {string} UNIX time, needs *1000 to make into miliseconds
    */
   function _isDataExpired(timestamp) {

@@ -9,7 +9,7 @@ body { background: #F5F5F5; }
 }
 
 #container {
-  font-size:1.75rem;
+  font-size:1.6rem;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
@@ -37,6 +37,7 @@ td.amount { text-align:right; }
     width: 100%;
     box-shadow: none;
     border-radius: none;
+    font-size:1.4rem;
   }
   .mainTitle { margin-top:10px; }
 }
