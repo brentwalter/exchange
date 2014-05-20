@@ -1,6 +1,8 @@
 var express = require('express');
 var app = module.exports = express();
 
+// Use environment variable to toggle mock/read DB requests
+// Only mock model has been created for this demo
 var modelPath = (app.get('env') === "development") ? '../models/transactions/mock' : '../models/transactions';
 var transactions = require(modelPath);
 

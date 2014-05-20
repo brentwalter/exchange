@@ -5,7 +5,22 @@ var exchange = require('../index')({
     fileStore: resolve(__dirname, './data/exchange-spec-fileCacheOnly.txt.mock')
   });
 
+// Mocks
+var ratesCache = {};
+ratesCache.rates = {
+  "USD": {
+    symbol: '$',
+    rate: "1.00"
+  },
+  "CAD": {
+    symbol: "$",
+    rate: "1.50"
+  }
+};
+var timestamp = 1200580046;
+
 module.exports = {
+  // integration
   FileCacheOnly_getConversionRate: {
     USDtoEUR: function(test) {
       exchange.getConversionRate('USD', 'EUR', function (err, rate) {
@@ -49,5 +64,16 @@ module.exports = {
         test.done();
       });
     }
+  },
+  // unit
+  PrivateMethods: {
+    _getSymbol: function(test) {
+      test.equals(exchange._getSymbol('USD'), '$');
+      test.done();
+    },
+    _isDataExpired: function(test) {
+      test.equals(exchange._isDataExpired(timestamp), true);
+      test.done();
+    }
   }
-}
+};

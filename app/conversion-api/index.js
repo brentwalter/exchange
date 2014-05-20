@@ -11,7 +11,10 @@ app.get('/paypal/currencyConversion', function(req, res) {
       to: req.query.to,
       amount: req.query.amount
     }, function(err, amount, country, symbol) {
-      if (err) return res.send(500, {error: 'something broke'});
+      if (err) {
+        console.error(err);
+        return res.send(500, {error: 'something broke'});
+      }
       res.json({
         amount: amount,
         currencyCode: country,

@@ -3,6 +3,9 @@ var http = require('http');
 var fs = require('fs');
 var resolve = require('path').resolve;
 
+var ratesCache = null;
+var symbolsFile = resolve(__dirname, './data/symbols_utf8.json');
+
 /*
  *  Configure the exchange module
  *  @param config {object}
@@ -24,9 +27,6 @@ module.exports = function(config) {
   var cacheFile   = config.fileStore || resolve(__dirname, './data/ratesCache.txt');
   var useFileOnly = config.useFileStoreOnly || false;
   var logging     = config.logging || false;
-
-  var ratesCache = null;
-  var symbolsFile = resolve(__dirname, './data/symbols_utf8.json');
 
 
   /****************
@@ -68,12 +68,15 @@ module.exports = function(config) {
    *        IF _getNewRates -> _formatResponse -> _writeCacheFile -> return after file write completed
    */
   function getConversionRate(fromCountry, toCountry, callback) {
+    if (!fromCountry) return callback(new Error('fromCountry must have a value'));
+    if (!toCountry) return callback(new Error('toCountry must have a value'));
+
     _getCurrencyInfo(fromCountry, function fromCountry(err, data) {
       if (err) return callback(err);
       var fromRate = data.rate;
       _log('getConversionRate | fromRate:', fromRate);
       _getCurrencyInfo(toCountry, function toCountry(err, data) {
-        if (err) return callack(err);
+        if (err) return callback(err);
         var toRate = data.rate;
         _log('getConversionRate | toRate:', toRate);
         var conversionRate = Math.round(toRate / fromRate * 1000000) / 1000000;
@@ -95,6 +98,7 @@ module.exports = function(config) {
   function _getCurrencyInfo(countryCode, callback) {
     _getData(function currencyInfo(err, data) {
       if (err) return callback(err);
+      if (!data.rates[countryCode]) return callback(new Error('Invalid country code.'));
       _log('_getCurrencyInfo | data["'+countryCode+'"]:', data.rates[countryCode]);
       callback(null, data.rates[countryCode]);
     });
@@ -305,12 +309,28 @@ module.exports = function(config) {
   }
 
 
-   /********************
-    * DEFINE PUBLIC API
-    ********************/
+  /********************
+   * DEFINE PUBLIC API
+   ********************/
 
-  return {
-    convert: convert,
-    getConversionRate: getConversionRate
-  };
+  if (process.env.NODE_ENV && process.env.NODE_ENV !== 'development') {
+    return {
+      convert: convert,
+      getConversionRate: getConversionRate
+    };
+  }
+  else {
+    return {
+      convert: convert,
+      getConversionRate: getConversionRate,
+      _getSymbol: _getSymbol,
+      _isDataExpired: _isDataExpired,
+      _formatResponse: _formatResponse,
+      _writeCacheFile: _writeCacheFile,
+      _readCacheFile: _readCacheFile,
+      _getNewRates: _getNewRates,
+      _getData: _getData,
+      _getCurrencyInfo: _getCurrencyInfo
+    };
+  }
 };
