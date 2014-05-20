@@ -65,5 +65,6 @@ Currency converter API and transaction dashboard for Node.js
     - Mock $.get() to have more complete unit tests
     - Add Capert.js for automated integration tests
     - Add Grunt for better asset optimization and developer conveniece (SCSS, uglify, watch, etc.)
+    - Make client error messaging not use alert()
     
 
